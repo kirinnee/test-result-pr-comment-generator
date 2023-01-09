@@ -19,10 +19,15 @@ tasks:
 
   build:
     desc: Builds and packages the action
+    deps: [clean]
     cmds:
       - tsc
       - ncc build --source-map --license licenses.txt
-
+  clean:
+    desc: Clean Artifacts
+    cmds:
+      - rm -rf ./dist
+      - rm -rf ./lib
   # Quality Assurance
   check:
     desc: Run all Quality Checks

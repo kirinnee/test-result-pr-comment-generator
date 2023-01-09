@@ -2,6 +2,5 @@ version: "3"
 
 tasks:
   pc:
-    ignore_error: true
     cmds:
       - pre-commit run --all   -c ./config/.pre-commit-config.yaml {{.PC_ID}}

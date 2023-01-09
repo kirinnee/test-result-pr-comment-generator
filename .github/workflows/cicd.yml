@@ -1,4 +1,4 @@
-name: "Continuous Integration"
+name: "CI/CD"
 on: # rebuild any PRs and main branch changes
   pull_request:
   push:
@@ -93,3 +93,32 @@ jobs:
         env:
           NIXPKGS_ALLOW_UNFREE: "1"
         run: nix-shell nix/shells.nix -A ci --run scripts/ci/pre-commit.sh
+  Release:
+    needs:
+      - Tests
+      - Build
+      - Pre-commit
+    name: Release
+    if: github.ref == 'refs/heads/main'
+    runs-on:
+      - nix
+      - ARM64
+    steps:
+      - name: AtomiCloud CI Environment
+        uses: kirinnee/atomici-action@v2.3.1
+
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Remove GitHooks
+        run: rm ./.git/hooks/*
+
+      - name: Build Artifacts
+        env:
+          NIXPKGS_ALLOW_UNFREE: "1"
+        run: nix-shell nix/shells.nix -A ci --run scripts/ci/build.sh
+
+      - name: Release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: nix-shell nix/shells.nix -A cd --run scripts/ci/release.sh
