@@ -1,0 +1,18 @@
+version: "3"
+
+tasks:
+  default:
+    desc: Setup the repository for development
+    cmds:
+      - task: pre-commit
+      - task: node
+  pre-commit:
+    desc: Setup Pre-Commit
+    cmds:
+      - pre-commit install -c ./config/.pre-commit-config.yaml --install-hooks
+      - pre-commit install -c ./config/.pre-commit-config.yaml -t commit-msg
+      - precommit-nix-patch patch
+  node:
+    desc: Setup Node Workspace
+    cmds:
+      - pnpm install

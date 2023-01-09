@@ -1,0 +1,33 @@
+version: "3"
+
+includes:
+  util: ./Taskfile.util.yml
+tasks:
+  default:
+    desc: Run all linters
+    deps:
+      - docker
+      - sh
+      - ts
+
+  ts:
+    desc: Lints TypeScript, JavaScript and JSON
+    cmds:
+      - task: util:pc
+        vars:
+          PC_ID: nodelint
+      - task: util:pc
+        vars:
+          PC_ID: tslint
+  docker:
+    desc: Lints Docker files
+    cmds:
+      - task: util:pc
+        vars:
+          PC_ID: dockerlint
+  sh:
+    desc: Lints shell scripts
+    cmds:
+      - task: util:pc
+        vars:
+          PC_ID: shellcheck

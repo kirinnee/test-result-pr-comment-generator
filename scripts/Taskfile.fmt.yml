@@ -1,0 +1,72 @@
+version: "3"
+
+includes:
+  util: ./Taskfile.util.yml
+tasks:
+  default:
+    desc: Run all formatters
+    output: group
+    deps:
+      - eof
+      - trailing:whitespace
+      - line:ending
+      - sh
+      - md
+      - yaml
+      - json
+      - node
+      - nix
+  eof:
+    desc: Fixes end of file
+    cmds:
+      - task: util:pc
+        vars:
+          PC_ID: end-of-file-fixer
+  trailing:whitespace:
+    desc: Fix all trailing whitespaces
+    cmds:
+      - task: util:pc
+        vars:
+          PC_ID: trailing-whitespace
+  line:ending:
+    desc: Fix line endings
+    cmds:
+      - task: util:pc
+        vars:
+          PC_ID: mixed-line-ending
+  sh:
+    desc: Format shellscripts
+    cmds:
+      - task: util:pc
+        vars:
+          PC_ID: shfmt
+  md:
+    desc: Formats Markdown with prettier
+    cmds:
+      - task: util:pc
+        vars:
+          PC_ID: mdfmt
+  yaml:
+    desc: Formats YAML with prettier
+    cmds:
+      - task: util:pc
+        vars:
+          PC_ID: yamlfmt
+  json:
+    desc: Formats JSON files
+    cmds:
+      - task: util:pc
+        vars:
+          PC_ID: jsonfmt
+  node:
+    desc: Formats all node related files, Typescript and Javascript
+    cmds:
+      - task: util:pc
+        vars:
+          PC_ID: nodefmt
+  nix:
+    desc: Formats Nix files
+    cmds:
+      - task: util:pc
+        vars:
+          PC_ID: nixfmt

@@ -1,0 +1,95 @@
+name: "Continuous Integration"
+on: # rebuild any PRs and main branch changes
+  pull_request:
+  push:
+    branches:
+      - main
+
+jobs:
+  Tests: # make sure build/ci work properly
+    runs-on:
+      - nix
+      - ARM64
+    steps:
+      - name: Atomi CI Environment
+        uses: kirinnee/atomici-action@v2.3.1
+
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Cache node_modules directory
+        uses: actions/cache@v3
+        with:
+          path: |
+            **/node_modules
+          key: test-${{ runner.os }}-${{ runner.arch }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            test-${{ runner.os }}-${{ runner.arch }}-pnpm
+
+      - name: Execute Tests
+        continue-on-error: true
+        env:
+          NIXPKGS_ALLOW_UNFREE: "1"
+        run: nix-shell nix/shells.nix -A ci --run scripts/ci/test.sh
+
+      # Custom Reporters
+      - name: Test Report
+        uses: dorny/test-reporter@v1
+        with:
+          name: Mocha Test Report
+          path: test-results/mocha-report.json
+          reporter: mocha-json
+
+      - name: Publish Test Report
+        uses: mikepenz/action-junit-report@v3
+        with:
+          report_paths: "**/junit.xml"
+  Build:
+    runs-on:
+      - nix
+      - ARM64
+    steps:
+      - name: Atomi CI Environment
+        uses: kirinnee/atomici-action@v2.3.1
+
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Cache node_modules directory
+        uses: actions/cache@v3
+        with:
+          path: |
+            **/node_modules
+          key: pre-commit-${{ runner.os }}-${{ runner.arch }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            pre-commit-${{ runner.os }}-${{ runner.arch }}-pnpm
+
+      - name: Build
+        env:
+          NIXPKGS_ALLOW_UNFREE: "1"
+        run: nix-shell nix/shells.nix -A ci --run scripts/ci/build.sh
+
+  Pre-commit:
+    runs-on:
+      - nix
+      - ARM64
+    steps:
+      - name: Atomi CI Environment
+        uses: kirinnee/atomici-action@v2.3.1
+
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Cache node_modules directory
+        uses: actions/cache@v3
+        with:
+          path: |
+            **/node_modules
+          key: pre-commit-${{ runner.os }}-${{ runner.arch }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            pre-commit-${{ runner.os }}-${{ runner.arch }}-pnpm
+
+      - name: Run Pre-commit checks
+        env:
+          NIXPKGS_ALLOW_UNFREE: "1"
+        run: nix-shell nix/shells.nix -A ci --run scripts/ci/pre-commit.sh

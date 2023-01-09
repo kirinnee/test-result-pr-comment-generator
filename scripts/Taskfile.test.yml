@@ -1,0 +1,55 @@
+version: "3"
+
+tasks:
+  default:
+    desc: Run all tests
+    cmds:
+      - mocha --config ./config/.mocharc.js
+  watch:
+    desc: Run all tests with auto-reload
+    cmds:
+      - mocha --config ./config/.mocharc.js --watch --reporter min
+  cover:
+    desc: Run all tests and generate coverage
+    cmds:
+      - nyc --nycrc-path ./config/.nycrc.text.json mocha --config ./config/.mocharc.js
+
+  report:
+    desc: Generate all reports for tests
+    deps:
+      - report:json
+      - report:xml
+      - report:html
+    cmds:
+      - task: report:cover
+
+  report:json:
+    ignore_error: true
+    desc: Generate test report in JSON
+    cmds:
+      - mocha --config ./config/.mocharc.json.js
+
+  report:xml:
+    ignore_error: true
+    desc: Generate test report in Junit XML format
+    cmds:
+      - mocha --config ./config/.mocharc.xml.js
+
+  report:html:
+    ignore_error: true
+    desc: Generate test report in HTML format
+    cmds:
+      - mocha --config ./config/.mocharc.html.js
+
+  report:cover:
+    desc: Generate test coverage report in lcov and HTML format
+    cmds:
+      - nyc --nycrc-path config/.nycrc.report.json mocha --config ./config/.mocharc.js
+
+  clean:
+    desc: Cleans up ephemeral test artifacts
+    ignore_error: true
+    cmds:
+      - rm -rf test-results
+      - rm -rf .nyc_output
+      - rm -rf coverage

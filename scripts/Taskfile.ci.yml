@@ -1,0 +1,65 @@
+version: "3"
+
+tasks:
+  isolate:
+    desc: Create an isolated CI environment
+    cmds:
+      - ./scripts/isolate.sh
+
+  isolate:nix-shell:
+    desc: Create an isolated CI environment and enter CI nix-shell
+    cmds:
+      - ./scripts/isolate.sh ":nix-shell:"
+
+  precommit:
+    desc: Execute pre-commit for CI
+    cmds:
+      - nix-shell nix/shells.nix -A ci --run scripts/ci/pre-commit.sh
+
+  emulate:pre-commit:
+    desc: Execute pre-commit for CI with full emulation
+    cmds:
+      - ./scripts/isolate.sh pre-commit
+
+  emulate:pre-commit:debug:
+    desc: Execute pre-commit for CI with full emulation and enter shell afterwards
+    interactive: true
+    env:
+      CI_EMULATE_AFTER: enter
+    cmds:
+      - ./scripts/isolate.sh pre-commit
+
+  test:
+    desc: Execute tests for CI
+    cmds:
+      - nix-shell nix/shells.nix -A ci --run scripts/ci/test.sh
+
+  emulate:test:
+    desc: Execute tests for CI with full emulation
+    cmds:
+      - ./scripts/isolate.sh test
+
+  emulate:test:debug:
+    desc: Execute tests for CI with full emulation and enter shell afterwards
+    interactive: true
+    env:
+      CI_EMULATE_AFTER: enter
+    cmds:
+      - ./scripts/isolate.sh test
+  build:
+    desc: Build for CI
+    cmds:
+      - nix-shell nix/shells.nix -A ci --run scripts/ci/build.sh
+
+  emulate:build:
+    desc: Build for CI with full emulation
+    cmds:
+      - ./scripts/isolate.sh build
+
+  emulate:build:debug:
+    desc: Build for CI with full emulation and enter shell afterwards
+    interactive: true
+    env:
+      CI_EMULATE_AFTER: enter
+    cmds:
+      - ./scripts/isolate.sh build

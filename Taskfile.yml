@@ -1,0 +1,52 @@
+version: "3"
+
+output: prefixed
+
+includes:
+  enforce: ./scripts/Taskfile.enforce.yml
+  ci: ./scripts/Taskfile.ci.yml
+  test: ./scripts/Taskfile.test.yml
+  fmt: ./scripts/Taskfile.fmt.yml
+  ide: ./scripts/Taskfile.ide.yml
+  lint: ./scripts/Taskfile.lint.yml
+  setup: ./scripts/Taskfile.setup.yml
+
+tasks:
+  setup:
+    desc: Setup the repository for development
+    cmds:
+      - task: setup:default
+
+  build:
+    desc: Builds and packages the action
+    cmds:
+      - tsc
+      - ncc build --source-map --license licenses.txt
+
+  # Quality Assurance
+  check:
+    desc: Run all Quality Checks
+    deps:
+      - enforce
+      - lint
+      - fmt
+      - test
+      - test:cover
+
+  enforce:
+    desc: Run all Enforcements
+    cmds:
+      - task: enforce:default
+  lint:
+    desc: Run all Linters
+    cmds:
+      - task: lint:default
+  fmt:
+    desc: Run all Formatters
+    cmds:
+      - task: fmt:default
+
+  test:
+    desc: Run basic unit test
+    cmds:
+      - task: test:default

@@ -1,0 +1,101 @@
+repos:
+  # fmt
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.3.0
+    hooks:
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
+      - id: mixed-line-ending
+  # lint
+  - repo: https://github.com/jorisroovers/gitlint
+    rev: v0.15.1
+    hooks:
+      - id: gitlint
+  - repo: https://github.com/jumanjihouse/pre-commit-hooks
+    rev: 2.1.5
+    hooks:
+      - id: shellcheck
+  - repo: local
+    hooks:
+      # lint
+      - id: sglint
+        name: Lint gitlint to confirm to atomi_release.yaml
+        entry: sg gitlint
+        files: (atomi_release.yaml|.gitlint)
+        language: system
+        pass_filenames: false
+
+      - id: nodelint
+        name: Lint TypeScript and JavaScript files
+        entry: eslint -c ./config/.eslintrc.js --fix
+        files: ^(src|tests)/.*\.(js|ts|json|jsx|tsx)$
+        pass_filenames: true
+        language: system
+
+      - id: tslint
+        name: Lint TypeScript
+        entry: tsc --noEmit
+        files: ^(src|tests)/.*\.(js|ts|json|jsx|tsx)$
+        pass_filenames: false
+        language: system
+
+      - id: dockerlint
+        name: Lint Docker files
+        entry: hadolint
+        files: ^.*Dockerfile$
+        pass_filenames: true
+        language: system
+      # fmt
+      - id: shfmt
+        name: Format Shell Scripts
+        entry: shfmt -w
+        files: ^.*\.sh$
+        pass_filenames: true
+        language: system
+
+      - id: yamlfmt
+        name: Format YAML with prettier
+        entry: prettier -w
+        files: ^.*\.(yaml|yml)$
+        exclude: ^.*node_modules.*$
+        pass_filenames: true
+        language: system
+
+      - id: mdfmt
+        name: Format Markdown with prettier
+        entry: prettier -w
+        files: ^.*\.(MD|md)$
+        exclude: ^.*node_modules.*$
+        pass_filenames: true
+        language: system
+
+      - id: jsonfmt
+        name: Format JSON with prettier
+        entry: prettier -w
+        files: ^.*\.json$
+        exclude: ^.*node_modules.*$
+        pass_filenames: true
+        language: system
+
+      - id: nodefmt
+        name: Format TypeScript and Javascript with prettier
+        entry: prettier --config ./config/.prettierrc -w
+        files: ^.*\.(js|ts|jsx|tsx)$
+        exclude: ^.*node_modules.*$
+        pass_filenames: true
+        language: system
+
+      - id: nixfmt
+        name: Format NIX files
+        entry: nixpkgs-fmt
+        files: ^.*\.nix$
+        language: system
+        pass_filenames: true
+
+      # enforce
+      - id: exec-scripts
+        name: Enforce that scripts are executable
+        entry: chmod -R +x
+        files: ^scripts.*\.sh$
+        pass_filenames: true
+        language: system
